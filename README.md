@@ -44,7 +44,20 @@ mvn package
 
 Le jar exécutable est produit dans `target/triphotos.jar`.
 
-## Utilisation
+## Interface graphique
+
+Double-cliquer sur `triphotos.jar`, ou le lancer sans argument :
+
+```bash
+java -jar target/triphotos.jar
+```
+
+La fenêtre permet de choisir le dossier source et le dossier de destination, de cocher les options
+(déplacer, simulation, sous-dossiers) puis de lancer le tri. Le journal s'affiche en direct et un bilan
+apparaît à la fin. La simulation est cochée par défaut ; un déplacement réel demande confirmation.
+Les derniers dossiers utilisés sont mémorisés.
+
+## Ligne de commande
 
 ```
 java -jar target/triphotos.jar <source> <destination> [options]

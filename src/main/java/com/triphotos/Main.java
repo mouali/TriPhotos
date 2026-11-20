@@ -1,5 +1,6 @@
 package com.triphotos;
 
+import java.awt.GraphicsEnvironment;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
@@ -15,6 +16,7 @@ public final class Main {
 
     private static final String USAGE = String.join(System.lineSeparator(),
             "Usage : java -jar triphotos.jar <source> <destination> [options]",
+            "        java -jar triphotos.jar            (sans argument : interface graphique)",
             "",
             "Range les photos et vidéos de <source> dans <destination>/AAAA/MM/",
             "selon leur date de prise de vue (EXIF), ou à défaut la date du fichier.",
@@ -29,7 +31,16 @@ public final class Main {
     }
 
     public static void main(String[] args) {
+        if (shouldOpenGui(args, GraphicsEnvironment.isHeadless())) {
+            SortWindow.open();
+            return;
+        }
         System.exit(run(args));
+    }
+
+    /** Sans argument et avec un écran disponible, on ouvre l'interface graphique. */
+    static boolean shouldOpenGui(String[] args, boolean headless) {
+        return args.length == 0 && !headless;
     }
 
     static int run(String[] args) {

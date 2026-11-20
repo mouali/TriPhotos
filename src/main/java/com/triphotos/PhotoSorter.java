@@ -1,7 +1,6 @@
 package com.triphotos;
 
 import java.io.IOException;
-import java.io.PrintStream;
 import java.nio.file.FileVisitOption;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -20,6 +19,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 
 /** Range les photos et vidéos d'un dossier source dans {@code destination/AAAA/MM/}. */
 public final class PhotoSorter {
@@ -73,13 +73,13 @@ public final class PhotoSorter {
             "mp4", "mov", "m4v", "avi", "3gp", "mkv", "mts", "m2ts");
 
     private final PhotoDateResolver dateResolver;
-    private final PrintStream log;
+    private final Consumer<String> log;
 
     public PhotoSorter() {
-        this(new PhotoDateResolver(), System.out);
+        this(new PhotoDateResolver(), System.out::println);
     }
 
-    public PhotoSorter(PhotoDateResolver dateResolver, PrintStream log) {
+    public PhotoSorter(PhotoDateResolver dateResolver, Consumer<String> log) {
         this.dateResolver = Objects.requireNonNull(dateResolver, "dateResolver");
         this.log = Objects.requireNonNull(log, "log");
     }
@@ -106,7 +106,7 @@ public final class PhotoSorter {
         Path src = source.toAbsolutePath().normalize();
 
         List<Path> files = listFiles(src, run);
-        log.println(dryRunPrefix(options) + files.size() + " fichier(s) trouvé(s) dans " + src);
+        log.accept(dryRunPrefix(options) + files.size() + " fichier(s) trouvé(s) dans " + src);
 
         for (Path file : files) {
             if (!isMedia(file)) {
@@ -169,14 +169,14 @@ public final class PhotoSorter {
             Path occupant = Files.exists(target) ? target : run.reserved.get(target);
             if (sameContent(file, occupant)) {
                 run.report.addDuplicate();
-                log.println("Doublon ignoré : " + file + " (déjà présent : " + target + ")");
+                log.accept("Doublon ignoré : " + file + " (déjà présent : " + target + ")");
                 return;
             }
             target = targetDir.resolve(withSuffix(file.getFileName().toString(), suffix++));
         }
         run.reserved.put(target, file);
 
-        log.println(dryRunPrefix(run.options) + run.options.mode().label + " : " + file + " -> " + target);
+        log.accept(dryRunPrefix(run.options) + run.options.mode().label + " : " + file + " -> " + target);
         if (!run.options.dryRun()) {
             Files.createDirectories(targetDir);
             if (run.options.mode() == Mode.MOVE) {
@@ -190,7 +190,7 @@ public final class PhotoSorter {
 
     private void error(Run run, Path file, String message) {
         run.report.addError(file + " : " + message);
-        log.println("ERREUR " + file + " : " + message);
+        log.accept("ERREUR " + file + " : " + message);
     }
 
     private static String dryRunPrefix(Options options) {
