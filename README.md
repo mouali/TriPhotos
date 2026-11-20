@@ -25,8 +25,10 @@ destination/
 - **Doublons** : un fichier déjà présent à l'identique (même nom, même contenu) est ignoré ;
   un fichier différent portant le même nom est renommé `nom_1.jpg`, `nom_2.jpg`…
   Aucun fichier existant n'est jamais écrasé.
-- **Seuls les médias sont traités** (jpg, jpeg, png, heic, gif, webp, tif, formats RAW courants,
-  mp4, mov, avi, 3gp, mkv…) ; les autres fichiers sont ignorés.
+  Avec `--move`, un doublon est laissé dans le dossier source.
+- **Seuls les médias sont traités** (jpg, jpeg, png, heic, avif, gif, webp, tif, formats RAW courants,
+  mp4, mov, avi, 3gp, mkv, mts…) ; les autres fichiers sont ignorés.
+- **Un dossier illisible n'interrompt pas le tri** : il est signalé comme erreur dans le bilan.
 - Un bilan s'affiche à la fin (triés, doublons, ignorés, erreurs).
 
 ## Prérequis

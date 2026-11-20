@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 /** Bilan d'une exécution du tri. */
-public class SortReport {
+public final class SortReport {
 
     private int sorted;
     private int skipped;

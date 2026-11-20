@@ -17,6 +17,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Date;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -30,7 +31,7 @@ import java.util.Optional;
  * </ol>
  * Toutes les dates sont exprimées dans le fuseau horaire {@code zone} (local par défaut).
  */
-public class PhotoDateResolver {
+public final class PhotoDateResolver {
 
     private static final DateTimeFormatter EXIF_FORMAT = DateTimeFormatter.ofPattern("yyyy:MM:dd HH:mm:ss");
 
@@ -41,7 +42,7 @@ public class PhotoDateResolver {
     }
 
     public PhotoDateResolver(ZoneId zone) {
-        this.zone = zone;
+        this.zone = Objects.requireNonNull(zone, "zone");
     }
 
     public Optional<LocalDateTime> resolve(Path file) {
