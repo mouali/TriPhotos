@@ -1,10 +1,17 @@
 package com.triphotos;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Main {
+/** Point d'entrée en ligne de commande. */
+public final class Main {
+
+    static final int EXIT_OK = 0;
+    static final int EXIT_ERROR = 1;
+    static final int EXIT_USAGE = 2;
 
     private static final String USAGE = String.join(System.lineSeparator(),
             "Usage : java -jar triphotos.jar <source> <destination> [options]",
@@ -18,30 +25,31 @@ public class Main {
             "  --recursive   traite aussi les sous-dossiers de <source>",
             "  --help        affiche cette aide");
 
+    private Main() {
+    }
+
     public static void main(String[] args) {
         System.exit(run(args));
     }
 
     static int run(String[] args) {
-        boolean move = false;
-        boolean dryRun = false;
-        boolean recursive = false;
+        PhotoSorter.Options options = PhotoSorter.Options.defaults();
         List<String> positional = new ArrayList<>();
 
         for (String arg : args) {
             switch (arg) {
-                case "--move" -> move = true;
-                case "--dry-run" -> dryRun = true;
-                case "--recursive", "-r" -> recursive = true;
+                case "--move" -> options = options.withMode(PhotoSorter.Mode.MOVE);
+                case "--dry-run" -> options = options.withDryRun();
+                case "--recursive", "-r" -> options = options.withRecursive();
                 case "--help", "-h" -> {
                     System.out.println(USAGE);
-                    return 0;
+                    return EXIT_OK;
                 }
                 default -> {
                     if (arg.startsWith("--")) {
                         System.err.println("Option inconnue : " + arg);
                         System.err.println(USAGE);
-                        return 2;
+                        return EXIT_USAGE;
                     }
                     positional.add(arg);
                 }
@@ -49,17 +57,23 @@ public class Main {
         }
         if (positional.size() != 2) {
             System.err.println(USAGE);
-            return 2;
+            return EXIT_USAGE;
         }
 
         try {
-            SortReport report = new PhotoSorter().sort(Path.of(positional.get(0)), Path.of(positional.get(1)),
-                    new PhotoSorter.Options(move, dryRun, recursive));
+            SortReport report = new PhotoSorter().sort(Path.of(positional.get(0)), Path.of(positional.get(1)), options);
             System.out.println(report);
-            return report.hasErrors() ? 1 : 0;
-        } catch (Exception e) {
-            System.err.println("Erreur : " + e.getMessage());
-            return 1;
+            return report.hasErrors() ? EXIT_ERROR : EXIT_OK;
+        } catch (IOException | UncheckedIOException | IllegalArgumentException e) {
+            // Erreurs attendues (chemin invalide, disque…) ; toute autre exception est un bug et garde sa trace.
+            System.err.println("Erreur : " + describe(e));
+            return EXIT_ERROR;
         }
+    }
+
+    /** Message lisible pour l'utilisateur, même quand l'exception n'a pas de message. */
+    static String describe(Exception e) {
+        String message = e.getMessage();
+        return message == null || message.isBlank() ? e.getClass().getSimpleName() : message;
     }
 }
