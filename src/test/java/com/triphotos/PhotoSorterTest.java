@@ -8,8 +8,6 @@ import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
@@ -39,7 +37,7 @@ class PhotoSorterTest {
         source = Files.createDirectory(tmp.resolve("source"));
         dest = tmp.resolve("dest");
         sorter = new PhotoSorter(new PhotoDateResolver(ZoneId.of("Europe/Paris")),
-                new PrintStream(new ByteArrayOutputStream()));
+                message -> { });
     }
 
     @Test

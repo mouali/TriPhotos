@@ -5,6 +5,8 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MainTest {
 
@@ -24,5 +26,12 @@ class MainTest {
     @Test
     void helpReturnsSuccess() {
         assertEquals(Main.EXIT_OK, Main.run(new String[]{"--help"}));
+    }
+
+    @Test
+    void guiOpensOnlyWithoutArgumentsAndWithAScreen() {
+        assertTrue(Main.shouldOpenGui(new String[0], false));
+        assertFalse(Main.shouldOpenGui(new String[]{"a", "b"}, false));
+        assertFalse(Main.shouldOpenGui(new String[0], true));
     }
 }
